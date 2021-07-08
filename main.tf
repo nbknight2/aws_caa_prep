@@ -31,6 +31,7 @@ resource "aws_instance" "aws_course_instance" {
       echo "<h1>Hello World from $(hostname -f)</h1>" > /var/www/html/index.html
       EOF
    key_name = "EC2-KEY-PAIR"
+   iam_instance_profile = aws_iam_instance_profile.iam_read_only_profile.name
    tags = {
      Name = "My First Instance"
      Department = "Finance"
@@ -81,6 +82,14 @@ resource "aws_network_interface_sg_attachment" "sg_attachment" {
   network_interface_id = aws_instance.aws_course_instance.primary_network_interface_id
 }
 
+resource "aws_iam_instance_profile" "iam_read_only_profile" {
+  name = "iam_read_only"
+  role = "${aws_iam_role.iam_read_only_role.name}"
+}
+
+resource "aws_eip" "aws_caa_eip" {
+  instance = aws_instance.aws_course_instance.id
+}
 
 
 
@@ -94,5 +103,8 @@ resource "aws_network_interface_sg_attachment" "sg_attachment" {
 
 output "ip" {
   value = aws_instance.aws_course_instance.public_ip
+}
+output "eip" {
+   value = aws_eip.aws_caa_eip.public_ip
 }
   
